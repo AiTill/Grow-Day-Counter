@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candy Kush Auto Growth Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-6">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Candy Kush Auto: Growth Tracker</h1>
+            <p class="text-xl text-gray-600">Keimung: 14.06.24</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="mb-4">
+                <label for="todayDate" class="block text-gray-700 font-bold mb-2">Datum Heute:</label>
+                <input type="date" id="todayDate" class="w-full p-2 border rounded">
+            </div>
+
+            <div id="result" class="text-2xl font-bold text-center py-4 rounded gradient-bg text-white mb-4"></div>
+            
+            <div id="phaseInfo" class="text-lg">
+                <p id="vegPhase" class="mb-2"></p>
+                <p id="flowerPhase" class="mb-2"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Wachstumsphasen</h2>
+                <ul id="growthPhases" class="list-disc pl-5"></ul>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Pflegetipps</h2>
+                <ul id="careTips" class="list-disc pl-5"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const germinationDate = new Date('2024-06-14');
+        const seedlingEndDate = new Date('2024-06-28');
+        const todayDateInput = document.getElementById('todayDate');
+        const resultDiv = document.getElementById('result');
+        const growthPhasesUl = document.getElementById('growthPhases');
+        const careTipsUl = document.getElementById('careTips');
+        const vegPhaseP = document.getElementById('vegPhase');
+        const flowerPhaseP = document.getElementById('flowerPhase');
+
+        const growthPhases = [
+            { name: "Keimung", startDate: new Date('2024-06-14'), endDate: new Date('2024-06-14') },
+            { name: "Sämling", startDate: new Date('2024-06-14'), endDate: new Date('2024-06-28') },
+            { name: "Vegetative Phase", startDate: new Date('2024-06-29'), endDate: null },
+            { name: "Vorblüte", startDate: null, endDate: null },
+            { name: "Blüte", startDate: null, endDate: null }
+        ];
+
+        const careTips = [
+            "Halte die Temperatur zwischen 20-28°C",
+            "Relative Luftfeuchtigkeit: 40-60%",
+            "Bewässere regelmäßig, aber vermeide Staunässe",
+            "Stelle ausreichend Licht zur Verfügung (18-24 Stunden pro Tag)",
+            "Dünge vorsichtig und nach Bedarf"
+        ];
+
+        function updateAge() {
+            const today = new Date(todayDateInput.value);
+            const ageInDays = Math.floor((today - germinationDate) / (1000 * 60 * 60 * 24));
+            resultDiv.textContent = `Alter der Pflanze: ${ageInDays} Tage`;
+
+            updateGrowthPhase(today);
+            updatePhaseInfo(today);
+        }
+
+        function updateGrowthPhase(today) {
+            growthPhasesUl.innerHTML = '';
+
+            growthPhases.forEach((phase, index) => {
+                const li = document.createElement('li');
+                
+                if (phase.startDate && phase.endDate && today >= phase.startDate && today <= phase.endDate) {
+                    li.classList.add('font-bold', 'text-green-600');
+                    li.textContent = `${phase.name} (aktuell)`;
+                } else if (phase.startDate && !phase.endDate && today >= phase.startDate) {
+                    li.classList.add('font-bold', 'text-green-600');
+                    li.textContent = `${phase.name} (aktuell)`;
+                } else if (phase.endDate && today > phase.endDate) {
+                    li.classList.add('text-gray-600');
+                    li.textContent = `${phase.name} (abgeschlossen)`;
+                } else {
+                    li.classList.add('text-gray-400');
+                    li.textContent = `${phase.name} (noch nicht begonnen)`;
+                }
+
+                growthPhasesUl.appendChild(li);
+            });
+        }
+
+        function updatePhaseInfo(today) {
+            const vegPhaseStart = new Date('2024-06-29');
+            const vegPhaseDays = Math.floor((today - vegPhaseStart) / (1000 * 60 * 60 * 24)) + 1;
+            
+            if (today >= vegPhaseStart) {
+                vegPhaseP.textContent = `Tag der Vegetativen Phase: ${vegPhaseDays}`;
+            } else {
+                vegPhaseP.textContent = "Vegetative Phase noch nicht begonnen";
+            }
+
+            flowerPhaseP.textContent = "Blütephase noch nicht begonnen";
+        }
+
+        function populateCareTips() {
+            careTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                careTipsUl.appendChild(li);
+            });
+        }
+
+        // Setze das heutige Datum als Standardwert
+        const now = new Date();
+        todayDateInput.value = now.toISOString().split('T')[0];
+        updateAge();
+        populateCareTips();
+
+        todayDateInput.addEventListener('change', updateAge);
+    </script>
+</body>
+</html>
